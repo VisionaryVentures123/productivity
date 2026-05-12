@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
 
 // ─── THEME ────────────────────────────────────────────────
 const C = {
@@ -717,10 +717,19 @@ function PlannerScreen({ tasks, addTask }) {
 }
 
 // ─── BOTTOM NAV ───────────────────────────────────────────
-function BottomNav({ tab, setTab, tasks }) {
+function BottomNav({ tab, setTab, tasks, visible }) {
   const ov=tasks.filter(t=>isOverdue(t)).length
   return (
-    <div style={{ position:'fixed', bottom:0, left:'50%', transform:'translateX(-50%)', width:'100%', maxWidth:430, background:`${C.card}ee`, borderTop:`1px solid ${C.border}`, display:'flex', zIndex:50, backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)', paddingBottom:'env(safe-area-inset-bottom)' }}>
+    <div style={{
+      position:'fixed', bottom:0, left:'50%',
+      // Slide off-screen when hidden; combine with the X-centering translate
+      transform:`translateX(-50%) translateY(${visible?'0%':'110%'})`,
+      transition:'transform 0.32s cubic-bezier(0.32,0.72,0,1)',
+      width:'100%', maxWidth:430, background:`${C.card}f0`,
+      borderTop:`1px solid ${C.border}`, display:'flex', zIndex:50,
+      backdropFilter:'blur(24px)', WebkitBackdropFilter:'blur(24px)',
+      paddingBottom:'env(safe-area-inset-bottom)',
+    }}>
       {TABS.map(t=>(
         <button key={t.id} onClick={()=>setTab(t.id)} style={{ flex:1, background:'none', border:'none', padding:'10px 4px 12px', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:3, position:'relative', minHeight:56 }}>
           <span style={{ fontSize:18, color:tab===t.id?C.accentBr:C.textMut }}>{t.icon}</span>
