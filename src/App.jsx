@@ -351,7 +351,7 @@ function HomeScreen({ tasks, addTask, updateTask, deleteTask, onBackup }) {
   const dayStr=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})
   return (
     <div style={{ background:C.bg, minHeight:'100%' }}>
-      <div style={{ background:'linear-gradient(160deg,#000 0%,#091120 60%,#0d1f48 100%)', padding:`max(48px,calc(20px + env(safe-area-inset-top))) 20px 24px` }}>
+      <div style={{ background:'linear-gradient(160deg,#000 0%,#091120 60%,#0d1f48 100%)', padding:'20px 20px 24px' }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
           <div>
             <div style={{ fontSize:12, fontWeight:700, color:C.textMut, textTransform:'uppercase', letterSpacing:1, marginBottom:4 }}>{dayStr}</div>
@@ -394,7 +394,7 @@ function HomeScreen({ tasks, addTask, updateTask, deleteTask, onBackup }) {
           </div>
         )}
       </div>
-      <button onClick={()=>setShowModal(true)} style={{ position:'fixed', bottom:'calc(80px + env(safe-area-inset-bottom))', right:20, width:56, height:56, borderRadius:'50%', background:`linear-gradient(135deg,${C.accent},#1e40af)`, border:'none', cursor:'pointer', fontSize:28, color:'#fff', boxShadow:'0 4px 20px rgba(29,78,216,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:40 }}>+</button>
+      <button onClick={()=>setShowModal(true)} style={{ position:'fixed', bottom:'calc(20px + env(safe-area-inset-bottom))', right:20, width:56, height:56, borderRadius:'50%', background:`linear-gradient(135deg,${C.accent},#1e40af)`, border:'none', cursor:'pointer', fontSize:28, color:'#fff', boxShadow:'0 4px 20px rgba(29,78,216,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:40 }}>+</button>
       {showModal&&<TaskModal onSave={addTask} onClose={()=>setShowModal(false)}/>}
       {editTask&&<TaskModal initial={editTask} onSave={u=>updateTask(editTask.id,u)} onClose={()=>setEditTask(null)}/>}
       {focusTask&&<FocusTimer task={focusTask} onClose={()=>setFocusTask(null)}/>}
@@ -424,7 +424,7 @@ function TasksScreen({ tasks, addTask, updateTask, deleteTask }) {
   }))
   return (
     <div style={{ background:C.bg, minHeight:'100%' }}>
-      <div style={{ padding:`max(52px,calc(16px + env(safe-area-inset-top))) 16px 10px`, background:C.card, borderBottom:`1px solid ${C.border}` }}>
+      <div style={{ padding:'16px 16px 10px', background:C.card, borderBottom:`1px solid ${C.border}` }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
           <h1 style={{ margin:0, fontSize:22, fontWeight:700, color:C.text }}>Tasks</h1>
           <button onClick={()=>setShowModal(true)} style={{ ...btn(C.accent), padding:'8px 16px', fontSize:13, borderRadius:10, minHeight:36 }}>+ New</button>
@@ -459,7 +459,7 @@ function CalendarScreen({ tasks, addTask }) {
   const selTasks=tasks.filter(t=>t.dueDate===sel)
   return (
     <div style={{ background:C.bg, minHeight:'100%' }}>
-      <div style={{ padding:`max(52px,calc(16px + env(safe-area-inset-top))) 16px 10px`, background:C.card, borderBottom:`1px solid ${C.border}` }}>
+      <div style={{ padding:'16px 16px 10px', background:C.card, borderBottom:`1px solid ${C.border}` }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
           <h1 style={{ margin:0, fontSize:22, fontWeight:700, color:C.text }}>Calendar</h1>
           <button onClick={()=>{setVd(new Date());setSel(todayStr())}} style={{ ...btn(C.surface2), padding:'7px 14px', fontSize:13, border:`1px solid ${C.border}`, borderRadius:9, minHeight:36, color:C.text }}>Today</button>
@@ -519,7 +519,7 @@ function NoteEditor({ form, setForm, subjects, onSave, onClose }) {
   const filtSub=subjects.filter(s=>s.toLowerCase().includes(form.subject.toLowerCase())&&s!==form.subject)
   return (
     <div style={{ display:'flex', flexDirection:'column', height:'100%', background:C.bg }}>
-      <div style={{ background:C.card, borderBottom:`1px solid ${C.border}`, padding:`max(52px,calc(12px + env(safe-area-inset-top))) 16px 12px`, display:'flex', justifyContent:'space-between', alignItems:'flex-end' }}>
+      <div style={{ background:C.card, borderBottom:`1px solid ${C.border}`, padding:'12px 16px', display:'flex', justifyContent:'space-between', alignItems:'flex-end' }}>
         <button onClick={onClose} style={{ background:'none', border:'none', fontSize:15, cursor:'pointer', color:C.accentBr, fontWeight:700, minHeight:44 }}>‹ Cancel</button>
         <div style={{ display:'flex', gap:8 }}>
           <button onClick={()=>set('pinned',!form.pinned)} style={{ background:form.pinned?C.warn:C.surface2, border:`1px solid ${C.border}`, borderRadius:9, padding:'7px 12px', cursor:'pointer', fontSize:14, color:form.pinned?C.yellow:C.textSec, minHeight:36 }}>📌</button>
@@ -621,7 +621,7 @@ function NotesScreen({ notes, addNote, updateNote, deleteNote, addTask }) {
   if(view==='edit') return <NoteEditor form={form} setForm={setForm} subjects={subjects} onSave={save} onClose={()=>setView('list')}/>
   return (
     <div style={{ background:C.bg, minHeight:'100%' }}>
-      <div style={{ padding:`max(52px,calc(16px + env(safe-area-inset-top))) 16px 10px`, background:C.card, borderBottom:`1px solid ${C.border}` }}>
+      <div style={{ padding:'16px 16px 10px', background:C.card, borderBottom:`1px solid ${C.border}` }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
           <h1 style={{ margin:0, fontSize:22, fontWeight:700, color:C.text }}>Notes</h1>
           <button onClick={openNew} style={{ ...btn(C.accent), padding:'8px 16px', fontSize:13, borderRadius:10, minHeight:36 }}>+ New</button>
@@ -676,7 +676,7 @@ function PlannerScreen({ tasks, addTask }) {
   const wkLabel=`${days[0].toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${days[6].toLocaleDateString('en-US',{month:'short',day:'numeric'})}`
   return (
     <div style={{ background:C.bg, minHeight:'100%' }}>
-      <div style={{ padding:`max(52px,calc(16px + env(safe-area-inset-top))) 16px 10px`, background:C.card, borderBottom:`1px solid ${C.border}` }}>
+      <div style={{ padding:'16px 16px 10px', background:C.card, borderBottom:`1px solid ${C.border}` }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
           <h1 style={{ margin:0, fontSize:22, fontWeight:700, color:C.text }}>Planner</h1>
           <button onClick={()=>setWk(0)} style={{ ...btn(C.surface2), padding:'7px 14px', fontSize:13, border:`1px solid ${C.border}`, borderRadius:9, minHeight:36, color:C.text }}>This Week</button>
@@ -716,29 +716,94 @@ function PlannerScreen({ tasks, addTask }) {
   )
 }
 
-// ─── BOTTOM NAV ───────────────────────────────────────────
-function BottomNav({ tab, setTab, tasks, visible }) {
-  const ov=tasks.filter(t=>isOverdue(t)).length
+// ─── TOP NAV ──────────────────────────────────────────────
+function TopNav({ tab, setTab, tasks }) {
+  const ov = tasks.filter(t => isOverdue(t)).length
+
   return (
     <div style={{
-      position:'fixed', bottom:0, left:'50%',
-      // Slide off-screen when hidden; combine with the X-centering translate
-      transform:`translateX(-50%) translateY(${visible?'0%':'110%'})`,
-      transition:'transform 0.32s cubic-bezier(0.32,0.72,0,1)',
-      width:'100%', maxWidth:430, background:`${C.card}f0`,
-      borderTop:`1px solid ${C.border}`, display:'flex', zIndex:50,
-      backdropFilter:'blur(24px)', WebkitBackdropFilter:'blur(24px)',
-      paddingBottom:'env(safe-area-inset-bottom)',
+      position:'sticky',
+      top:0,
+      zIndex:80,
+      background:`${C.card}f2`,
+      borderBottom:`1px solid ${C.border}`,
+      backdropFilter:'blur(24px)',
+      WebkitBackdropFilter:'blur(24px)',
+      paddingTop:'env(safe-area-inset-top)',
+      boxShadow:'0 6px 24px rgba(0,0,0,0.25)'
     }}>
-      {TABS.map(t=>(
-        <button key={t.id} onClick={()=>setTab(t.id)} style={{ flex:1, background:'none', border:'none', padding:'10px 4px 12px', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:3, position:'relative', minHeight:56 }}>
-          <span style={{ fontSize:18, color:tab===t.id?C.accentBr:C.textMut }}>{t.icon}</span>
-          <span style={{ fontSize:10, fontWeight:tab===t.id?700:500, color:tab===t.id?C.accentBr:C.textMut }}>{t.label}</span>
-          {t.id==='tasks'&&ov>0&&<div style={{ position:'absolute', top:6, right:'20%', background:C.red, color:'#fff', borderRadius:'50%', width:16, height:16, fontSize:10, fontWeight:700, display:'flex', alignItems:'center', justifyContent:'center' }}>{ov}</div>}
-          {tab===t.id&&<div style={{ position:'absolute', bottom:0, left:'25%', right:'25%', height:2, background:C.accentBr, borderRadius:'2px 2px 0 0' }}/>}
-        </button>
-      ))}
+      <div style={{ maxWidth:430, margin:'0 auto', padding:'10px 12px' }}>
+        <div
+          data-no-swipe="true"
+          style={{
+            display:'flex',
+            gap:8,
+            overflowX:'auto',
+            WebkitOverflowScrolling:'touch',
+            scrollbarWidth:'none'
+          }}
+        >
+          {TABS.map(t=>{
+            const active = tab === t.id
+            return (
+              <button
+                key={t.id}
+                onClick={()=>setTab(t.id)}
+                style={{
+                  position:'relative',
+                  flex:'0 0 auto',
+                  minHeight:44,
+                  minWidth:'auto',
+                  padding:'8px 14px',
+                  borderRadius:999,
+                  background:active ? `linear-gradient(135deg,${C.accent},${C.accentBr})` : C.surface2,
+                  color:active ? '#fff' : C.textSec,
+                  border:`1px solid ${active ? C.accentBr : C.border}`,
+                  fontSize:13,
+                  fontWeight:active ? 800 : 700,
+                  display:'inline-flex',
+                  alignItems:'center',
+                  justifyContent:'center',
+                  gap:6,
+                  transition:'all 0.2s ease',
+                  boxShadow:active ? '0 6px 18px rgba(29,78,216,0.35)' : 'none'
+                }}
+              >
+                <span style={{ fontSize:14 }}>{t.icon}</span>
+                <span>{t.label}</span>
+                {t.id==='tasks'&&ov>0&&(
+                  <span style={{
+                    position:'absolute',
+                    top:-5,
+                    right:-5,
+                    background:C.red,
+                    color:'#fff',
+                    borderRadius:999,
+                    width:18,
+                    height:18,
+                    fontSize:10,
+                    fontWeight:800,
+                    display:'flex',
+                    alignItems:'center',
+                    justifyContent:'center',
+                    border:`2px solid ${C.card}`
+                  }}>
+                    {ov}
+                  </span>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      </div>
     </div>
+  )
+}
+
+const isInteractiveTarget = el => {
+  if (!el) return false
+  return !!el.closest(
+    'input, textarea, select, button, [contenteditable="true"], [data-no-swipe="true"], .no-swipe'
   )
 }
 
@@ -752,6 +817,7 @@ export default function App() {
   const [showUndo,setShowUndo]   = useState(false)
   const [showBackup,setShowBackup] = useState(false)
   const undoTimerRef = useRef(null)
+  const touchStartRef = useRef({ x:0, y:0, active:false })
 
   useEffect(()=>{
     try { const t=localStorage.getItem('ppa_tasks_v2'); if(t) setTasks(JSON.parse(t)) } catch {}
@@ -773,6 +839,48 @@ export default function App() {
   const deleteNote = id  => { const item=notes.find(n=>n.id===id); if(item) triggerUndo('note',item); setNotes(p=>p.filter(n=>n.id!==id)) }
   const handleImport = data => { if(data.tasks) setTasks(data.tasks); if(data.notes) setNotes(data.notes) }
 
+  const goToTab = useCallback((direction) => {
+    const currentIndex = TABS.findIndex(t => t.id === tab)
+    if (currentIndex === -1) return
+
+    const nextIndex = direction === 'left'
+      ? Math.min(currentIndex + 1, TABS.length - 1)
+      : Math.max(currentIndex - 1, 0)
+
+    if (nextIndex !== currentIndex) {
+      setTab(TABS[nextIndex].id)
+    }
+  }, [tab])
+
+  const handleTouchStart = useCallback((e) => {
+    if (e.touches.length !== 1) return
+    if (isInteractiveTarget(e.target)) return
+
+    const touch = e.touches[0]
+    touchStartRef.current = { x:touch.clientX, y:touch.clientY, active:true }
+  }, [])
+
+  const handleTouchEnd = useCallback((e) => {
+    if (!touchStartRef.current.active) return
+    if (isInteractiveTarget(e.target)) return
+
+    const touch = e.changedTouches[0]
+    const dx = touch.clientX - touchStartRef.current.x
+    const dy = touch.clientY - touchStartRef.current.y
+
+    touchStartRef.current.active = false
+
+    const minSwipe = 55
+    const maxVertical = 45
+
+    if (Math.abs(dx) < minSwipe) return
+    if (Math.abs(dy) > maxVertical) return
+
+    if (dx < 0) goToTab('left')
+    else goToTab('right')
+  }, [goToTab])
+
+
   if(!loaded) return (
     <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:'100vh', fontFamily:'system-ui', flexDirection:'column', gap:14, background:C.bg }}>
       <div style={{ fontSize:40 }}>⬡</div>
@@ -785,11 +893,32 @@ export default function App() {
   const Screen=screens[tab]
 
   return (
-    <div style={{ fontFamily:"-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',Arial,sans-serif", maxWidth:430, margin:'0 auto', height:'100vh', display:'flex', flexDirection:'column', background:C.bg, overflow:'hidden', position:'relative' }}>
-      <div className="scroll-container" style={{ flex:1, overflowY:'auto', paddingBottom:`calc(76px + env(safe-area-inset-bottom))` }}>
+    <div style={{
+      fontFamily:"-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',Arial,sans-serif",
+      maxWidth:430,
+      margin:'0 auto',
+      height:'100vh',
+      display:'flex',
+      flexDirection:'column',
+      background:C.bg,
+      overflow:'hidden',
+      position:'relative'
+    }}>
+      <TopNav tab={tab} setTab={setTab} tasks={tasks}/>
+
+      <div
+        className="scroll-container"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        style={{
+          flex:1,
+          overflowY:'auto',
+          paddingBottom:'calc(24px + env(safe-area-inset-bottom))'
+        }}
+      >
         <Screen {...props} onBackup={()=>setShowBackup(true)}/>
       </div>
-      <BottomNav tab={tab} setTab={setTab} tasks={tasks}/>
+
       {showUndo&&<UndoToast item={undoItem} onUndo={handleUndo} onDismiss={()=>setShowUndo(false)}/>}
       {showBackup&&<ExportImportModal tasks={tasks} notes={notes} onImport={handleImport} onClose={()=>setShowBackup(false)}/>}
     </div>
