@@ -333,15 +333,28 @@ function HomeScreen({ tasks, addTask, updateTask, deleteTask, onBackup }) {
   const [showModal,setShowModal]=useState(false)
   const [editTask,setEditTask]=useState(null)
   const [focusTask,setFocusTask]=useState(null)
+  const [homeFilter,setHomeFilter]=useState(null)
+
   const toggle=useCallback(id=>{
     const t=tasks.find(x=>x.id===id); if(!t) return
-    if(!t.completed&&t.recurring&&t.recurring!=='None'){ const next=getNextDue(t); if(next) addTask({...t,id:uid(),dueDate:next,completed:false,createdAt:new Date().toISOString()}) }
+    if(!t.completed&&t.recurring&&t.recurring!=='None'){
+      const next=getNextDue(t)
+      if(next) addTask({...t,id:uid(),dueDate:next,completed:false,createdAt:new Date().toISOString()})
+    }
     updateTask(id,{completed:!t.completed})
   },[tasks,addTask,updateTask])
-  const snooze=(t,when)=>{ const d=new Date(); if(when==='tomorrow')d.setDate(d.getDate()+1); if(when==='nextweek')d.setDate(d.getDate()+7); updateTask(t.id,{dueDate:ld(d)}) }
+
+  const snooze=(t,when)=>{
+    const d=new Date()
+    if(when==='tomorrow') d.setDate(d.getDate()+1)
+    if(when==='nextweek') d.setDate(d.getDate()+7)
+    updateTask(t.id,{dueDate:ld(d)})
+  }
+
   const active=tasks.filter(t=>!t.completed)
-  const overdue=active.filter(isOverdue)
-  const todayTasks=active.filter(isToday)
+  const overdue=sortTasks(active.filter(isOverdue))
+  const todayTasks=sortTasks(active.filter(isToday))
+  const doneTasks=sortTasks(tasks.filter(t=>t.completed))
   const focus=sortTasks(active.filter(t=>t.priority==='High'||isToday(t)||isOverdue(t))).slice(0,3)
   const upcoming=sortTasks(active.filter(t=>t.dueDate>todayStr())).slice(0,5)
   const doneTodayCount=tasks.filter(t=>t.completed&&t.dueDate===todayStr()).length
@@ -349,6 +362,51 @@ function HomeScreen({ tasks, addTask, updateTask, deleteTask, onBackup }) {
   const h=new Date().getHours()
   const greet=h<5?'Up late 🌙':h<12?'Good morning ☀️':h<17?'Good afternoon ⚡':h<21?'Good evening 🌆':'Good night 🌙'
   const dayStr=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})
+
+  const filterInfo = {
+    overdue: {
+      title:'Overdue Tasks',
+      emptyIcon:'✅',
+      emptyTitle:'Nothing overdue.',
+      emptyText:'You are caught up on overdue work.',
+      tasks:overdue
+    },
+    today: {
+      title:"Today's Tasks",
+      emptyIcon:'📅',
+      emptyTitle:'Nothing due today.',
+      emptyText:'Add something for today or enjoy the open space.',
+      tasks:todayTasks
+    },
+    done: {
+      title:'Done Tasks',
+      emptyIcon:'✨',
+      emptyTitle:'No completed tasks yet.',
+      emptyText:'Completed tasks will show up here.',
+      tasks:doneTasks
+    }
+  }
+
+  const stats = [
+    { id:'overdue', label:'Overdue', count:overdue.length, color:C.red },
+    { id:'today',   label:'Today',   count:todayTasks.length, color:C.accentBr },
+    { id:'done',    label:'Done',    count:doneTasks.length, color:C.green },
+  ]
+
+  const renderTaskList = (list) => list.map(t=>(
+    <TaskCard
+      key={t.id}
+      task={t}
+      onToggle={toggle}
+      onDelete={deleteTask}
+      onEdit={setEditTask}
+      onFocus={setFocusTask}
+      onSnooze={snooze}
+    />
+  ))
+
+  const selected = homeFilter ? filterInfo[homeFilter] : null
+
   return (
     <div style={{ background:C.bg, minHeight:'100%' }}>
       <div style={{ background:'linear-gradient(160deg,#000 0%,#091120 60%,#0d1f48 100%)', padding:'20px 20px 24px' }}>
@@ -360,44 +418,97 @@ function HomeScreen({ tasks, addTask, updateTask, deleteTask, onBackup }) {
           </div>
           <button onClick={onBackup} style={{ background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:10, padding:'8px 10px', cursor:'pointer', fontSize:18, minHeight:44, minWidth:44 }}>⚙️</button>
         </div>
+
         <div style={{ display:'flex', gap:10 }}>
-          {[[overdue.length,'Overdue',C.red],[todayTasks.length,'Today',C.accentBr],[tasks.filter(t=>t.completed).length,'Done',C.green]].map(([n,lb,col])=>(
-            <div key={lb} style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:13, padding:'12px 0', flex:1, textAlign:'center' }}>
-              <div style={{ fontSize:22, fontWeight:700, color:col }}>{n}</div>
-              <div style={{ fontSize:11, color:'rgba(255,255,255,0.45)', marginTop:2 }}>{lb}</div>
-            </div>
-          ))}
+          {stats.map(s=>{
+            const activeStat=homeFilter===s.id
+            return (
+              <button
+                key={s.id}
+                onClick={()=>setHomeFilter(activeStat?null:s.id)}
+                style={{
+                  background:activeStat?'rgba(255,255,255,0.16)':'rgba(255,255,255,0.06)',
+                  border:`1px solid ${activeStat?s.color:'rgba(255,255,255,0.1)'}`,
+                  borderRadius:13,
+                  padding:'12px 0',
+                  flex:1,
+                  textAlign:'center',
+                  cursor:'pointer',
+                  minHeight:72,
+                  display:'block',
+                  boxShadow:activeStat?`0 0 0 1px ${s.color}33, 0 8px 22px rgba(0,0,0,0.25)`:'none',
+                  transform:activeStat?'translateY(-1px)':'none',
+                  transition:'all .18s ease'
+                }}
+              >
+                <div style={{ fontSize:22, fontWeight:700, color:s.color }}>{s.count}</div>
+                <div style={{ fontSize:11, color:activeStat?'rgba(255,255,255,0.8)':'rgba(255,255,255,0.45)', marginTop:2 }}>{s.label}</div>
+              </button>
+            )
+          })}
         </div>
       </div>
+
       <div style={{ padding:'16px 16px 8px' }}>
         <QuickAdd onAdd={addTask}/>
-        {todayTotal>0&&(
-          <div style={{ ...card(), marginBottom:16, padding:14 }}>
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
-              <span style={{ fontSize:13, fontWeight:700, color:C.textSec }}>Today's Progress</span>
-              <span style={{ fontSize:13, fontWeight:700, color:C.accentBr }}>{doneTodayCount}/{todayTotal}</span>
+
+        {selected ? (
+          <div className="fade-in">
+            <div style={{ ...card({ padding:14, marginBottom:14 }) }}>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:12 }}>
+                <div>
+                  <div style={{ fontSize:18, fontWeight:800, color:C.text, marginBottom:2 }}>{selected.title}</div>
+                  <div style={{ fontSize:12, color:C.textSec }}>{selected.tasks.length} task{selected.tasks.length===1?'':'s'}</div>
+                </div>
+                <button
+                  onClick={()=>setHomeFilter(null)}
+                  style={{ ...btn(C.surface2), border:`1px solid ${C.border}`, color:C.text, padding:'8px 12px', fontSize:12, borderRadius:10, minHeight:36 }}
+                >
+                  Show Dashboard
+                </button>
+              </div>
             </div>
-            <div style={{ height:6, background:C.border, borderRadius:4, overflow:'hidden' }}>
-              <div style={{ height:'100%', width:`${(doneTodayCount/todayTotal)*100}%`, background:`linear-gradient(90deg,${C.accent},${C.accentBr})`, borderRadius:4, transition:'width .4s' }}/>
-            </div>
+
+            {selected.tasks.length>0 ? renderTaskList(selected.tasks) : (
+              <div style={{ textAlign:'center', padding:'48px 20px' }}>
+                <div style={{ fontSize:48, marginBottom:12 }}>{selected.emptyIcon}</div>
+                <div style={{ color:C.text, fontWeight:700, fontSize:18, marginBottom:8 }}>{selected.emptyTitle}</div>
+                <div style={{ color:C.textSec, fontSize:14, lineHeight:1.6 }}>{selected.emptyText}</div>
+              </div>
+            )}
           </div>
-        )}
-        {focus.length>0&&<div style={{ marginBottom:20 }}>{secHdr('✦ Focus Today')}{focus.map(t=><TaskCard key={t.id} task={t} onToggle={toggle} onDelete={deleteTask} onEdit={setEditTask} onFocus={setFocusTask} onSnooze={snooze}/>)}</div>}
-        {overdue.length>0&&<div style={{ marginBottom:20 }}>{secHdr('⚠️ Overdue')}{overdue.map(t=><TaskCard key={t.id} task={t} onToggle={toggle} onDelete={deleteTask} onEdit={setEditTask} onFocus={setFocusTask} onSnooze={snooze}/>)}</div>}
-        {todayTasks.length>0&&<div style={{ marginBottom:20 }}>{secHdr('📅 Today')}{todayTasks.map(t=><TaskCard key={t.id} task={t} onToggle={toggle} onDelete={deleteTask} onEdit={setEditTask} onFocus={setFocusTask} onSnooze={snooze}/>)}</div>}
-        {upcoming.length>0&&<div style={{ marginBottom:20 }}>{secHdr('🔜 Upcoming')}{upcoming.map(t=><TaskCard key={t.id} task={t} onToggle={toggle} onDelete={deleteTask} onEdit={setEditTask} onFocus={setFocusTask} onSnooze={snooze}/>)}</div>}
-        {active.length===0&&(
-          <div style={{ textAlign:'center', padding:'48px 20px' }}>
-            <div style={{ fontSize:48, marginBottom:12 }}>🎉</div>
-            <div style={{ color:C.text, fontWeight:700, fontSize:18, marginBottom:8 }}>All clear!</div>
-            <div style={{ color:C.textSec, fontSize:14, lineHeight:1.6 }}>No pending tasks. Use Quick Add above or tap + to get started.</div>
-          </div>
+        ) : (
+          <>
+            {todayTotal>0&&(
+              <div style={{ ...card(), marginBottom:16, padding:14 }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
+                  <span style={{ fontSize:13, fontWeight:700, color:C.textSec }}>Today's Progress</span>
+                  <span style={{ fontSize:13, fontWeight:700, color:C.accentBr }}>{doneTodayCount}/{todayTotal}</span>
+                </div>
+                <div style={{ height:6, background:C.border, borderRadius:4, overflow:'hidden' }}>
+                  <div style={{ height:'100%', width:`${(doneTodayCount/todayTotal)*100}%`, background:`linear-gradient(90deg,${C.accent},${C.accentBr})`, borderRadius:4, transition:'width .4s' }}/>
+                </div>
+              </div>
+            )}
+            {focus.length>0&&<div style={{ marginBottom:20 }}>{secHdr('✦ Focus Today')}{renderTaskList(focus)}</div>}
+            {overdue.length>0&&<div style={{ marginBottom:20 }}>{secHdr('⚠️ Overdue')}{renderTaskList(overdue)}</div>}
+            {todayTasks.length>0&&<div style={{ marginBottom:20 }}>{secHdr('📅 Today')}{renderTaskList(todayTasks)}</div>}
+            {upcoming.length>0&&<div style={{ marginBottom:20 }}>{secHdr('🔜 Upcoming')}{renderTaskList(upcoming)}</div>}
+            {active.length===0&&(
+              <div style={{ textAlign:'center', padding:'48px 20px' }}>
+                <div style={{ fontSize:48, marginBottom:12 }}>🎉</div>
+                <div style={{ color:C.text, fontWeight:700, fontSize:18, marginBottom:8 }}>All clear!</div>
+                <div style={{ color:C.textSec, fontSize:14, lineHeight:1.6 }}>No pending tasks. Use Quick Add above or tap + to get started.</div>
+              </div>
+            )}
+          </>
         )}
       </div>
+
       <button onClick={()=>setShowModal(true)} style={{ position:'fixed', bottom:'calc(20px + env(safe-area-inset-bottom))', right:20, width:56, height:56, borderRadius:'50%', background:`linear-gradient(135deg,${C.accent},#1e40af)`, border:'none', cursor:'pointer', fontSize:28, color:'#fff', boxShadow:'0 4px 20px rgba(29,78,216,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:40 }}>+</button>
-      {showModal&&<TaskModal onSave={addTask} onClose={()=>setShowModal(false)}/>}
-      {editTask&&<TaskModal initial={editTask} onSave={u=>updateTask(editTask.id,u)} onClose={()=>setEditTask(null)}/>}
-      {focusTask&&<FocusTimer task={focusTask} onClose={()=>setFocusTask(null)}/>}
+      {showModal&&<TaskModal onSave={addTask} onClose={()=>setShowModal(false)}/>} 
+      {editTask&&<TaskModal initial={editTask} onSave={u=>updateTask(editTask.id,u)} onClose={()=>setEditTask(null)}/>} 
+      {focusTask&&<FocusTimer task={focusTask} onClose={()=>setFocusTask(null)}/>} 
     </div>
   )
 }
